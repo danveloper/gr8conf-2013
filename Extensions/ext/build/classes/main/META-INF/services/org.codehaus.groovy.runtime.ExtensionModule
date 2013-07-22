@@ -1,0 +1,4 @@
+moduleName=groovy-stream
+moduleVersion=0.1-SNAPSHOT
+extensionClasses=gr8conf.ext.MapExtensions,gr8conf.ext.StringExtensions
+staticExtensionClasses=

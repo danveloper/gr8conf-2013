@@ -1,0 +1,10 @@
+gradle/
+.idea/
+.gradle/
+*.ipr
+*.iws
+*.iml
+*.class
+*.bin
+out/
+target/

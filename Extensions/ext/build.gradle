@@ -1,0 +1,42 @@
+apply plugin: 'groovy'
+apply plugin: 'idea'
+
+version = "0.1-SNAPSHOT"
+
+repositories {
+	mavenLocal()
+    mavenCentral()
+}
+
+dependencies {
+	compile 'org.codehaus.groovy:groovy-all:2.1.3'
+    testCompile 'junit:junit:4.10'
+    testCompile fileTree( dir:'build/libs/', includes:[ "groovy-common-extensions-${version}.jar".toString() ] )
+}
+
+// Stolen from @tim_yates -> http://github.com/timyates/groovy-common-extensions
+task generateModule << {
+  def extensionFiles = sourceSets.main.groovy.with { g ->
+    g.findAll {
+      it.parentFile.name == 'ext' && it.name.endsWith( 'groovy' )
+    }.collect {
+      it.toString().replaceAll( File.separator, '.' )
+    }.collect {
+      it - ( g.srcDirs as List )[0].toString().replaceAll( File.separator, '.' )
+    }.collect {
+      it[ 1..-8 ]
+    }.join( ',' )
+  }
+  new File( "$buildDir/classes/main/META-INF/services" ).with { f ->
+    f.mkdirs()
+    new File( f, 'org.codehaus.groovy.runtime.ExtensionModule' ).withWriter { w ->
+      w.writeLine 'moduleName=groovy-stream'
+      w.writeLine "moduleVersion=$version"
+      w.writeLine "extensionClasses=$extensionFiles"
+      w.writeLine 'staticExtensionClasses='
+    }
+  }
+}
+
+jar.dependsOn(generateModule)
+test.dependsOn(jar)
